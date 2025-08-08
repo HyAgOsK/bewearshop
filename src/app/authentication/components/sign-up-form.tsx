@@ -23,7 +23,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import { authClient } from "@/lib/auth-clients";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 const formSchema = z
   .object({
     name: z.string("Preencha o nome").trim().min(1, "Nome é obrigatório"),
@@ -44,6 +46,7 @@ const formSchema = z
 type FormValues = z.infer<typeof formSchema>;
 
 const SignUpForm = () => {
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,9 +57,27 @@ const SignUpForm = () => {
     },
   });
 
-  function onSubmit(values: FormValues) {
-    console.log("FORMULARIO ENVIADO");
-    console.log(values);
+  async function onSubmit(values: FormValues) {
+    await authClient.signUp.email({
+      name: values.name, // required
+      email: values.email, // required
+      password: values.password, // required
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+          toast.success("Conta criada com sucesso!");
+        },
+        onError: (error) => {
+          if (error.error.code === "USER_ALREADY_EXISTS") {
+            toast.error("Usuário ja encontrado");
+            form.setError("email", {
+              message: "E-mail já cadastrado.",
+            });
+          }
+          toast.error(error.error.message);
+        },
+      },
+    });
   }
 
   return (

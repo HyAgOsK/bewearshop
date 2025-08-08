@@ -7,6 +7,7 @@ import { Header } from "@/components/common/header";
 import ProductList from "@/components/common/product-list";
 import { db } from "@/db";
 import { productTable } from "@/db/schema";
+import EnterprisesSelector from "@/components/common/enterprises-selector";
 
 const Home = async () => {
   const products = await db.query.productTable.findMany({
@@ -21,14 +22,13 @@ const Home = async () => {
     },
   });
   const categories = await db.query.categoryTable.findMany({});
-
   return (
     <>
       <Header />
       <div className="space-y-6">
         <div className="px-5">
           <Image
-            src="/banner-01.png"
+            src="/banner01.png"
             alt="Leve uma vida com estilo"
             height={0}
             width={0}
@@ -36,7 +36,7 @@ const Home = async () => {
             className="h-auto w-full"
           />
         </div>
-
+        <EnterprisesSelector />
         <ProductList products={products} title="Mais vendidos" />
 
         <div className="px-5">
@@ -45,7 +45,7 @@ const Home = async () => {
 
         <div className="px-5">
           <Image
-            src="/banner-02.png"
+            src="/banner02.png"
             alt="Leve uma vida com estilo"
             height={0}
             width={0}

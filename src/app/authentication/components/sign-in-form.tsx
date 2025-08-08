@@ -2,6 +2,7 @@
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import {
   Form,
   FormField,
@@ -74,6 +75,12 @@ const SignInForm = () => {
     });
   }
 
+  const hangleSignInWithGoogle = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+    });
+  };
+
   return (
     <>
       <Card className="w-full">
@@ -119,8 +126,25 @@ const SignInForm = () => {
                 )}
               />
             </CardContent>
-            <CardFooter>
-              <Button type="submit">Entrar</Button>
+            <CardFooter className="flex flex-col gap-2">
+              <Button type="submit" className="w-full">
+                Entrar
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={hangleSignInWithGoogle}
+                type="button"
+              >
+                <Image
+                  src="/google-g-2015.svg"
+                  alt="Google"
+                  width={20}
+                  height={20}
+                  className="mr-2"
+                />
+                Entrar com Google
+              </Button>
             </CardFooter>
           </form>
         </Form>

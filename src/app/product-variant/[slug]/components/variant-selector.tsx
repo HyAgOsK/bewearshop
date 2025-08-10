@@ -27,7 +27,7 @@ const VariantSelector = ({
             <Image
               width={68}
               height={68}
-              src={variant.imageUrl}
+              src={variant.imageUrl.replace(/^\{?"?/, "").replace(/"?\}?$/, "")}
               alt={variant.name}
               className="rounded-xl"
             />

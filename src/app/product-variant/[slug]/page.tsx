@@ -1,15 +1,17 @@
+import { eq } from "drizzle-orm";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+
+import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
+import ProductList from "@/components/common/product-list";
 import { db } from "@/db";
 import { productTable, productVariantTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { notFound } from "next/navigation";
-import Image from "next/image";
 import { formatCentsToBRL } from "@/helpers/money";
-import { Button } from "@/components/ui/button";
-import ProductList from "@/components/common/product-list";
-import Footer from "@/components/common/footer";
+
+import ProductActions from "./components/product-actions";
 import VariantSelector from "./components/variant-selector";
-import QuantitySelector from "./components/quantoty-selector";
+
 interface ProductVariantPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -20,15 +22,15 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
     where: eq(productVariantTable.slug, slug),
     with: {
       product: {
-        with: { variants: true },
+        with: {
+          variants: true,
+        },
       },
     },
   });
-
   if (!productVariant) {
     return notFound();
   }
-
   const likelyProducts = await db.query.productTable.findMany({
     where: eq(productTable.categoryId, productVariant.product.categoryId),
     with: {
@@ -36,46 +38,35 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
     },
   });
 
-  let imageUrl = productVariant.imageUrl;
-
-  if (typeof imageUrl === "string") {
-    imageUrl = imageUrl.replace(/^{|}$/g, "").trim(); // remove { e }
-    imageUrl = imageUrl.replace(/^"+|"+$/g, ""); // remove aspas extras
+  function cleanImageUrl(url: string) {
+    return url
+      ?.replace(/^{|}$/g, "") // remove chaves { }
+      .replace(/^"+|"+$/g, "") // remove aspas extras
+      .trim();
   }
-  const variants = await db.query.productVariantTable.findMany({
-    where: eq(productVariantTable.productId, productVariant.productId),
-  });
-
-  const cleanedVariants = variants.map((v) => ({
-    ...v,
-    imageUrl:
-      typeof v.imageUrl === "string"
-        ? v.imageUrl
-            .replace(/^{|}$/g, "")
-            .replace(/^"+|"+$/g, "")
-            .trim()
-        : v.imageUrl,
-  }));
 
   return (
     <>
       <Header />
       <div className="flex flex-col space-y-6">
-        <div className="roudend-3xl relative h-[380px] w-full">
-          <Image
-            src={imageUrl}
-            alt={productVariant.name}
-            fill
-            className="object-cover"
-          />
-        </div>
+        <Image
+          src={cleanImageUrl(productVariant.imageUrl)}
+          alt={productVariant.name}
+          sizes="100vw"
+          height={0}
+          width={0}
+          className="h-auto w-full object-cover"
+        />
+
         <div className="px-5">
           <VariantSelector
-            variants={cleanedVariants}
             selectedVariantSlug={productVariant.slug}
+            variants={productVariant.product.variants}
           />
         </div>
+
         <div className="px-5">
+          {/* DESCRIÇÃO */}
           <h2 className="text-lg font-semibold">
             {productVariant.product.name}
           </h2>
@@ -86,28 +77,17 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
             {formatCentsToBRL(productVariant.priceInCents)}
           </h3>
         </div>
-        <div className="px-5">
-          <QuantitySelector />
-        </div>
-        <div className="flex flex-col space-y-4 px-5">
-          <Button className="rounded-full" size="lg" variant="outline">
-            Adicionar ao carrinho
-          </Button>
-          <Button className="size rounded-full" size="lg">
-            Adicionar à sacola
-          </Button>
-        </div>
+
+        <ProductActions productVariantId={productVariant.id} />
+
         <div className="px-5">
           <p className="text-shadow-amber-600">
             {productVariant.product.description}
           </p>
         </div>
-        <div className="px-5">
-          <ProductList
-            title="Talve você queira também"
-            products={likelyProducts}
-          />
-        </div>
+
+        <ProductList title="Talvez você goste" products={likelyProducts} />
+
         <Footer />
       </div>
     </>

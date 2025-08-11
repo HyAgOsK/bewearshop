@@ -22,6 +22,7 @@ import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-
 import { toast } from "sonner";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
 import { shippingAddressTable } from "@/db/schema";
+import { getCart } from "@/actions/get-cart";
 
 const formSchema = z.object({
   email: z.email("E-mail inválido"),
@@ -56,15 +57,22 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface AdressesProps {
   shippdingaddresses: (typeof shippingAddressTable.$inferSelect)[];
+  defaultShippingAdressId: string | null;
 }
 
-const Adresses = ({ shippdingaddresses }: AdressesProps) => {
-  const [selectedAdresses, setSelectedAdresses] = useState<string | null>(null);
+const Adresses = ({
+  shippdingaddresses,
+  defaultShippingAdressId,
+}: AdressesProps) => {
+  const [selectedAdresses, setSelectedAdresses] = useState<string | null>(
+    defaultShippingAdressId || null,
+  );
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
   const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippdingaddresses,
   });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -114,7 +122,7 @@ const Adresses = ({ shippdingaddresses }: AdressesProps) => {
       city: "",
       state: "",
     });
-    setSelectedAdresses(null);
+    setSelectedAdresses(created.id);
   }
 
   return (
@@ -124,7 +132,7 @@ const Adresses = ({ shippdingaddresses }: AdressesProps) => {
       </CardHeader>
       <CardContent>
         <RadioGroup
-          value={selectedAdresses}
+          value={selectedAdresses ?? undefined}
           onValueChange={setSelectedAdresses}
         >
           {addresses?.map((address) => (
@@ -144,13 +152,32 @@ const Adresses = ({ shippdingaddresses }: AdressesProps) => {
           ))}
           <Card>
             <CardContent>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-3">
                 <RadioGroupItem value="add_new" id="add_new" />
                 <Label htmlFor="add_new">Adicionar novo endereço</Label>
               </div>
             </CardContent>
           </Card>
         </RadioGroup>
+
+        {selectedAdresses && selectedAdresses !== "add_new" && (
+          <div className="mt-6">
+            <Button
+              className="w-full"
+              disabled={updateCartShippingAddressMutation.isPending}
+              onClick={async () => {
+                await updateCartShippingAddressMutation.mutateAsync({
+                  shippingAddressId: selectedAdresses as string,
+                });
+                toast.success("Endereço selecionado com sucesso!");
+              }}
+            >
+              {updateCartShippingAddressMutation.isPending
+                ? "Atualizando..."
+                : "Ir para pagamento"}
+            </Button>
+          </div>
+        )}
 
         {selectedAdresses === "add_new" && (
           <Form {...form}>

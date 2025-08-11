@@ -10,6 +10,7 @@ import {
   type CreateShippingAddressSchema,
   createShippingAddressSchema,
 } from "./schema";
+import { revalidatePath } from "next/cache";
 
 export const createShippingAddress = async (
   data: CreateShippingAddressSchema,
@@ -43,5 +44,6 @@ export const createShippingAddress = async (
     })
     .returning();
 
+  revalidatePath("/cart/identification");
   return created;
 };

@@ -20,7 +20,8 @@ import { PatternFormat } from "react-number-format";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { toast } from "sonner";
-import { useShippingAddresses } from "@/hooks/queries/use-shipping-addresses";
+import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
+import { shippingAddressTable } from "@/db/schema";
 
 const formSchema = z.object({
   email: z.email("E-mail inválido"),
@@ -53,11 +54,17 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const Adresses = () => {
+interface AdressesProps {
+  shippdingaddresses: (typeof shippingAddressTable.$inferSelect)[];
+}
+
+const Adresses = ({ shippdingaddresses }: AdressesProps) => {
   const [selectedAdresses, setSelectedAdresses] = useState<string | null>(null);
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
-  const { data: addresses } = useShippingAddresses();
+  const { data: addresses, isLoading } = useUserAddresses({
+    initialData: shippdingaddresses,
+  });
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { cartTable } from "@/db/schema";
+import { cartTable, shippingAddressTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -25,11 +25,16 @@ export const IndetificationPage = async () => {
   if (!cart || cart?.items.length === 0) {
     redirect("/");
   }
+
+  const shippdingaddresses = await db.query.shippingAddressTable.findMany({
+    where: eq(shippingAddressTable.userId, session?.user.id),
+  });
+
   return (
     <>
       <Header />
       <div className="px-5">
-        <Adresses />
+        <Adresses shippdingaddresses={shippdingaddresses} />
       </div>
     </>
   );

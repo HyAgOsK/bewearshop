@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
 import { shippingAddressTable } from "@/db/schema";
 import { getCart } from "@/actions/get-cart";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.email("E-mail inválido"),
@@ -64,6 +65,7 @@ const Adresses = ({
   shippdingaddresses,
   defaultShippingAdressId,
 }: AdressesProps) => {
+  const router = useRouter();
   const [selectedAdresses, setSelectedAdresses] = useState<string | null>(
     defaultShippingAdressId || null,
   );
@@ -125,6 +127,7 @@ const Adresses = ({
       state: "",
     });
     setSelectedAdresses(created.id);
+    router.push("/cart/confirmation");
   }
 
   return (
@@ -171,7 +174,7 @@ const Adresses = ({
                 await updateCartShippingAddressMutation.mutateAsync({
                   shippingAddressId: selectedAdresses as string,
                 });
-                toast.success("Endereço selecionado com sucesso!");
+                router.push("/cart/confirmation");
               }}
             >
               {updateCartShippingAddressMutation.isPending

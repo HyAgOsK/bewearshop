@@ -10,7 +10,7 @@ import CartSummary from "../components/cart-summary";
 import { Separator } from "@radix-ui/react-separator";
 import Footer from "@/components/common/footer";
 
-export const IndetificationPage = async () => {
+const IndetificationPage = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -48,7 +48,7 @@ export const IndetificationPage = async () => {
   );
 
   return (
-    <div className="space-y-12">
+    <div>
       <Header />
       <div className="px-5">
         <Adresses

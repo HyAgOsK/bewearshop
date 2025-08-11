@@ -1,13 +1,15 @@
 "use server";
 
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import { addProductToCartSchema } from "./schema";
-import { db } from "@/db";
 import { eq } from "drizzle-orm";
-import { cartItemTable, cartTable } from "@/db/schema";
+import { headers } from "next/headers";
 
-export const addProductToCart = async (data: addProductToCartSchema) => {
+import { db } from "@/db";
+import { cartItemTable, cartTable } from "@/db/schema";
+import { auth } from "@/lib/auth";
+
+import { AddProductToCartSchema, addProductToCartSchema } from "./schema";
+
+export const addProductToCart = async (data: AddProductToCartSchema) => {
   addProductToCartSchema.parse(data);
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -22,13 +24,10 @@ export const addProductToCart = async (data: addProductToCartSchema) => {
   if (!productVariant) {
     throw new Error("Product variant not found");
   }
-
   const cart = await db.query.cartTable.findFirst({
     where: (cart, { eq }) => eq(cart.userId, session.user.id),
   });
-
   let cartId = cart?.id;
-
   if (!cartId) {
     const [newCart] = await db
       .insert(cartTable)
@@ -36,10 +35,8 @@ export const addProductToCart = async (data: addProductToCartSchema) => {
         userId: session.user.id,
       })
       .returning();
-
     cartId = newCart.id;
   }
-
   const cartItem = await db.query.cartItemTable.findFirst({
     where: (cartItem, { eq }) =>
       eq(cartItem.cartId, cartId) &&
@@ -60,5 +57,3 @@ export const addProductToCart = async (data: addProductToCartSchema) => {
     quantity: data.quantity,
   });
 };
-
-export default addProductToCart;

@@ -108,7 +108,9 @@ const Adresses = ({
     await updateCartShippingAddressMutation.mutateAsync({
       shippingAddressId: created.id,
     });
-    toast.success("Endereço cadastrado com sucesso!");
+    toast.success("Endereço cadastrado com sucesso!", {
+      position: "top-center",
+    });
     form.reset({
       email: "",
       fullName: "",

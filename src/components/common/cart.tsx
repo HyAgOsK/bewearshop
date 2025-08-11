@@ -27,15 +27,14 @@ export const Cart = () => {
           <ShoppingBasketIcon />
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="overflow-hidden">
         <SheetHeader>
           <SheetTitle>Carrinho</SheetTitle>
         </SheetHeader>
-
-        <div className="flex h-full flex-col px-5 pb-5">
-          <div className="flex h-full max-h-full flex-col overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="flex h-full flex-col gap-8">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1">
+            <ScrollArea className="h-full px-5">
+              <div className="flex flex-col gap-8 py-5 pb-40">
                 {cart?.items.map((item) => (
                   <CartItem
                     key={item.id}
@@ -55,7 +54,7 @@ export const Cart = () => {
           </div>
 
           {cart?.items && cart?.items.length > 0 && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 px-5 pb-5">
               <Separator />
 
               <div className="flex items-center justify-between text-xs font-medium">

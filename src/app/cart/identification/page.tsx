@@ -6,6 +6,9 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Header } from "@/components/common/header";
 import Adresses from "./components/addresses";
+import CartSummary from "../components/cart-summary";
+import { Separator } from "@radix-ui/react-separator";
+import Footer from "@/components/common/footer";
 
 export const IndetificationPage = async () => {
   const session = await auth.api.getSession({
@@ -39,16 +42,39 @@ export const IndetificationPage = async () => {
     where: eq(shippingAddressTable.userId, session?.user.id),
   });
 
+  const cartTotalInCents = cart.items.reduce(
+    (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
+    0,
+  );
+
   return (
-    <>
+    <div className="space-y-12">
       <Header />
       <div className="px-5">
         <Adresses
           shippdingaddresses={shippdingaddresses}
           defaultShippingAdressId={cart.shippingAddress?.id || null}
         />
+        <div className="py-3">
+          <Separator />
+        </div>
+        <CartSummary
+          subtotalInCents={cartTotalInCents}
+          totalInCents={cartTotalInCents}
+          products={cart.items.map((item) => ({
+            id: item.productVariant.id,
+            name: item.productVariant.product.name,
+            variantName: item.productVariant.name,
+            quantity: item.quantity,
+            princeInCents: item.productVariant.priceInCents,
+            imageUrl: item.productVariant.imageUrl,
+          }))}
+        />
       </div>
-    </>
+      <div className="mt-12">
+        <Footer />
+      </div>
+    </div>
   );
 };
 

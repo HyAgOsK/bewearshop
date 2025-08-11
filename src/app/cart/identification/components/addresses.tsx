@@ -20,6 +20,7 @@ import { PatternFormat } from "react-number-format";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { toast } from "sonner";
+import { useShippingAddresses } from "@/hooks/queries/use-shipping-addresses";
 
 const formSchema = z.object({
   email: z.email("E-mail inválido"),
@@ -56,6 +57,7 @@ const Adresses = () => {
   const [selectedAdresses, setSelectedAdresses] = useState<string | null>(null);
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
+  const { data: addresses } = useShippingAddresses();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -118,11 +120,26 @@ const Adresses = () => {
           value={selectedAdresses}
           onValueChange={setSelectedAdresses}
         >
+          {addresses?.map((address) => (
+            <Card key={address.id} className="mb-3">
+              <CardContent>
+                <div className="flex items-center gap-3">
+                  <RadioGroupItem value={address.id} id={address.id} />
+                  <Label htmlFor={address.id} className="flex-1">
+                    {address.recipientName}, {address.street}, {address.number}
+                    {address.complement ? `, ${address.complement}` : ""},{" "}
+                    {address.neighborhood}, {address.city} - {address.state},{" "}
+                    {address.zipCode}
+                  </Label>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
           <Card>
             <CardContent>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="add_new" id="add_new" />
-                <Label htmlFor="add_new">Adicionar novo</Label>
+                <Label htmlFor="add_new">Adicionar novo endereço</Label>
               </div>
             </CardContent>
           </Card>
@@ -132,41 +149,45 @@ const Adresses = () => {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="mt-6 grid grid-cols-1 gap-4"
+              className="mt-6 grid grid-cols-6 gap-4"
             >
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="Email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="col-span-6">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="Email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome completo</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="Nome completo"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="col-span-6">
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome completo</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Nome completo"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="col-span-3">
                 <FormField
                   control={form.control}
                   name="cpf"
@@ -190,7 +211,9 @@ const Adresses = () => {
                     </FormItem>
                   )}
                 />
+              </div>
 
+              <div className="col-span-3">
                 <FormField
                   control={form.control}
                   name="phone"
@@ -216,45 +239,49 @@ const Adresses = () => {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="zipCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CEP</FormLabel>
-                    <FormControl>
-                      <PatternFormat
-                        format="#####-###"
-                        mask="_"
-                        value={field.value}
-                        onValueChange={(v) => field.onChange(v.value)}
-                        onBlur={field.onBlur}
-                        getInputRef={field.ref}
-                        name={field.name}
-                        customInput={Input}
-                        placeholder="CEP"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="col-span-6">
+                <FormField
+                  control={form.control}
+                  name="zipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CEP</FormLabel>
+                      <FormControl>
+                        <PatternFormat
+                          format="#####-###"
+                          mask="_"
+                          value={field.value}
+                          onValueChange={(v) => field.onChange(v.value)}
+                          onBlur={field.onBlur}
+                          getInputRef={field.ref}
+                          name={field.name}
+                          customInput={Input}
+                          placeholder="CEP"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Endereço</FormLabel>
-                    <FormControl>
-                      <Input type="text" placeholder="Endereço" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="col-span-3">
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Endereço</FormLabel>
+                      <FormControl>
+                        <Input type="text" placeholder="Endereço" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="col-span-1">
                 <FormField
                   control={form.control}
                   name="number"
@@ -268,6 +295,8 @@ const Adresses = () => {
                     </FormItem>
                   )}
                 />
+              </div>
+              <div className="col-span-2">
                 <FormField
                   control={form.control}
                   name="complement"
@@ -287,7 +316,7 @@ const Adresses = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="col-span-2">
                 <FormField
                   control={form.control}
                   name="district"
@@ -301,6 +330,8 @@ const Adresses = () => {
                     </FormItem>
                   )}
                 />
+              </div>
+              <div className="col-span-2">
                 <FormField
                   control={form.control}
                   name="city"
@@ -314,6 +345,8 @@ const Adresses = () => {
                     </FormItem>
                   )}
                 />
+              </div>
+              <div className="col-span-2">
                 <FormField
                   control={form.control}
                   name="state"
@@ -329,19 +362,21 @@ const Adresses = () => {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={
-                  createShippingAddressMutation.isPending ||
+              <div className="col-span-6">
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={
+                    createShippingAddressMutation.isPending ||
+                    updateCartShippingAddressMutation.isPending
+                  }
+                >
+                  {createShippingAddressMutation.isPending ||
                   updateCartShippingAddressMutation.isPending
-                }
-              >
-                {createShippingAddressMutation.isPending ||
-                updateCartShippingAddressMutation.isPending
-                  ? "Salvando..."
-                  : "Salvar endereço"}
-              </Button>
+                    ? "Salvando..."
+                    : "Salvar endereço"}
+                </Button>
+              </div>
             </form>
           </Form>
         )}

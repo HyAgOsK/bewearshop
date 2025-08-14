@@ -8,20 +8,18 @@ import ProductList from "@/components/common/product-list";
 import { db } from "@/db";
 import { productTable } from "@/db/schema";
 import EnterprisesSelector from "@/components/common/enterprises-selector";
+import {
+  getNewlyCreatedProducts,
+  getProductsWithVariants,
+} from "@/data/products/get";
+import { getCategories } from "@/actions/get-categories";
 
 const Home = async () => {
-  const products = await db.query.productTable.findMany({
-    with: {
-      variants: true,
-    },
-  });
-  const newlyCreatedProducts = await db.query.productTable.findMany({
-    orderBy: [desc(productTable.createdAt)],
-    with: {
-      variants: true,
-    },
-  });
-  const categories = await db.query.categoryTable.findMany({});
+  const [products, newlyCreatedProducts, categories] = await Promise.all([
+    getProductsWithVariants(),
+    getNewlyCreatedProducts(),
+    getCategories(),
+  ]);
   return (
     <>
       <Header />

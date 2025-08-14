@@ -69,8 +69,8 @@ export const Cart = ({ trigger }: { trigger?: React.ReactNode }) => {
                   }
                   primaryAction={{ href: "/", label: "Voltar para a loja" }}
                   secondaryAction={{
-                    href: "/my-orders",
-                    label: "Ver meus pedidos",
+                    href: "/authentication",
+                    label: "Entrar para ver pedidos",
                     variant: "outline",
                   }}
                 />

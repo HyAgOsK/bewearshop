@@ -9,7 +9,11 @@ export const getCart = async () => {
     headers: await headers(),
   });
   if (!session?.user) {
-    throw new Error("Unauthorized");
+    return {
+      items: [],
+      totalPrinceInCents: 0,
+      shippingAddress: null,
+    } as const;
   }
   const cart = await db.query.cartTable.findFirst({
     where: (cart, { eq }) => eq(cart.userId, session.user.id),

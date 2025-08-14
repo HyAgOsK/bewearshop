@@ -101,15 +101,27 @@ export const Header = () => {
                     Início
                   </Link>
                 </SheetClose>
-                <SheetClose asChild>
-                  <Link
-                    href="/my-orders"
-                    className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    <PackageIcon className="size-4" />
-                    Meus Pedidos
-                  </Link>
-                </SheetClose>
+                {session?.user ? (
+                  <SheetClose asChild>
+                    <Link
+                      href="/my-orders"
+                      className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium"
+                    >
+                      <PackageIcon className="size-4" />
+                      Meus Pedidos
+                    </Link>
+                  </SheetClose>
+                ) : (
+                  <SheetClose asChild>
+                    <Link
+                      href="/authentication"
+                      className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium"
+                    >
+                      <PackageIcon className="size-4" />
+                      Entrar para ver pedidos
+                    </Link>
+                  </SheetClose>
+                )}
                 <Cart
                   trigger={
                     <button className="hover:bg-accent flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium">

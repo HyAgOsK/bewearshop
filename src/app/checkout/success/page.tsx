@@ -32,18 +32,24 @@ const CheckoutSuccessPage = () => {
             na seção de “Meus Pedidos”.
           </DialogDescription>
 
-          <DialogFooter>
-            <Button className="rounded-full" size="lg" asChild>
-              <Link href="/my-orders">Ver meus pedidos</Link>
-            </Button>
-            <Button
-              className="rounded-full"
-              variant="outline"
-              size="lg"
-              asChild
-            >
-              <Link href="/">Voltar para a loja</Link>
-            </Button>
+          <DialogFooter className="flex justify-center">
+            <div className="mx-auto flex w-full max-w-md flex-row items-center justify-center gap-3">
+              <Button className="flex-1 rounded-full" size="lg" asChild>
+                <Link href="/my-orders" className="w-full text-center">
+                  Ver meus pedidos
+                </Link>
+              </Button>
+              <Button
+                className="flex-1 rounded-full"
+                variant="outline"
+                size="lg"
+                asChild
+              >
+                <Link href="/" className="w-full text-center">
+                  Voltar para a loja
+                </Link>
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

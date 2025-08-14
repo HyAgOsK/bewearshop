@@ -1,7 +1,14 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { MenuIcon, LogInIcon, LogOutIcon } from "lucide-react";
+import {
+  MenuIcon,
+  LogInIcon,
+  LogOutIcon,
+  HomeIcon,
+  PackageIcon,
+  ShoppingBasketIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
 
@@ -11,12 +18,18 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from "../ui/sheet";
 import { authClient } from "@/lib/auth-clients";
 import { Cart } from "./cart";
+import { Separator } from "../ui/separator";
+import CategorySelector from "./category-selector";
+import { useCategories } from "@/hooks/queries/use-categories";
 
 export const Header = () => {
   const { data: session } = authClient.useSession();
+  const { data: categories } = useCategories();
+
   return (
     <header className="flex items-center justify-between p-5">
       <Link href="/">
@@ -74,6 +87,59 @@ export const Header = () => {
                   </Button>
                 </div>
               )}
+
+              <div className="py-5">
+                <Separator />
+              </div>
+              <nav className="flex flex-col gap-2">
+                <SheetClose asChild>
+                  <Link
+                    href="/"
+                    className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium"
+                  >
+                    <HomeIcon className="size-4" />
+                    Início
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    href="/my-orders"
+                    className="hover:bg-accent flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium"
+                  >
+                    <PackageIcon className="size-4" />
+                    Meus Pedidos
+                  </Link>
+                </SheetClose>
+                <Cart
+                  trigger={
+                    <button className="hover:bg-accent flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium">
+                      <ShoppingBasketIcon className="size-4" />
+                      Sacola
+                    </button>
+                  }
+                />
+              </nav>
+              <div className="py-5">
+                <Separator />
+              </div>
+              {categories?.length ? (
+                <div className="pb-5">
+                  <div className="flex flex-col gap-2">
+                    {categories.map((category) => (
+                      <Button
+                        key={category.id}
+                        variant="ghost"
+                        className="justify-start rounded-full bg-white text-xs font-semibold"
+                        asChild
+                      >
+                        <Link href={`/category/${category.slug}`}>
+                          {category.name}
+                        </Link>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </SheetContent>
         </Sheet>
